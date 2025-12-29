@@ -1,0 +1,21 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Setup Nim
+        uses: nim-lang/setup-nim-action@v2
+        with:
+          nim-version: stable
+      - name: Run tests
+        working-directory: nimAutoWrapper
+        run: nimble test_all

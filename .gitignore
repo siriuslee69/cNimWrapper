@@ -1,0 +1,10 @@
+nimcache/
+**/nimcache_*/
+testCRepos/builds/
+*.exe
+*.dll
+*.obj
+*.pdb
+nimble.develop
+nimble.paths
+nimbledeps
