@@ -237,6 +237,9 @@ Test coverage (realworld)
 
 Each runner regenerates the wrapper before building the test binary.
 
+Note: test repos live in git submodules under `testCRepos/repos/`. See their
+licenses in their respective repositories.
+
 -------------------------------------------------------------------------------
 Layout
 -------------------------------------------------------------------------------
