@@ -5,30 +5,20 @@ import strutils
 const
   libsodiumBuildStamp = "libsodium-extended-v1"
 
-proc findNimAutoWrapperDir*(): string =
-  ## Returns the nimAutoWrapper base directory from the current working directory.
-  ## Falls back to the current directory when the folder is not found.
+proc findcNimWrapperDir*(): string =
+  ## Returns the cNimWrapper base directory based on this file's location.
   var
-    cwd: string = getCurrentDir()
-    head: string = ""
-    tail: string = ""
-    candidate: string = ""
+    sourceFile: string = currentSourcePath()
+    sourceDir: string = ""
     baseDir: string = ""
-  (head, tail) = splitPath(cwd)
-  if tail == "nimAutoWrapper":
-    baseDir = cwd
-  else:
-    candidate = joinPath(cwd, "nimAutoWrapper")
-    if dirExists(candidate):
-      baseDir = candidate
-    else:
-      baseDir = cwd
+  sourceDir = splitFile(sourceFile).dir
+  baseDir = parentDir(sourceDir)
   result = baseDir
 
 proc buildPaths*(a: string): tuple[repoDir: string, buildDir: string, installDir: string,
     libDir: string, binDir: string, objDir: string, memzeroShim: string, coreShim: string,
     stampPath: string] =
-  ## a: nimAutoWrapper base directory
+  ## a: cNimWrapper base directory
   ## Builds libsodium repo and build paths.
   var
     repoDir: string = joinPath(a, "testCRepos", "repos", "libsodium")
@@ -303,7 +293,7 @@ proc buildStaticLib*(a: seq[tuple[path: string, flags: string]], b: string, c: s
 proc main*() =
   ## Builds an expanded libsodium static library for XChaCha20, AES-GCM, and hashes.
   var
-    baseDir: string = findNimAutoWrapperDir()
+    baseDir: string = findcNimWrapperDir()
     paths: tuple[repoDir: string, buildDir: string, installDir: string, libDir: string,
       binDir: string, objDir: string, memzeroShim: string, coreShim: string,
       stampPath: string] = buildPaths(baseDir)
@@ -325,3 +315,4 @@ proc main*() =
 
 when isMainModule:
   main()
+

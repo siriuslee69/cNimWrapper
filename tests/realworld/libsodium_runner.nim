@@ -1,36 +1,26 @@
 import os
 import osproc
 
-proc findNimAutoWrapperDir*(): string =
-  ## Returns the nimAutoWrapper base directory from the current working directory.
-  ## Falls back to the current directory when the folder is not found.
+proc findcNimWrapperDir*(): string =
+  ## Returns the cNimWrapper base directory based on this file's location.
   var
-    cwd: string = getCurrentDir()
-    head: string = ""
-    tail: string = ""
-    candidate: string = ""
+    sourceFile: string = currentSourcePath()
+    sourceDir: string = ""
     baseDir: string = ""
-  (head, tail) = splitPath(cwd)
-  if tail == "nimAutoWrapper":
-    baseDir = cwd
-  else:
-    candidate = joinPath(cwd, "nimAutoWrapper")
-    if dirExists(candidate):
-      baseDir = candidate
-    else:
-      baseDir = cwd
+  sourceDir = splitFile(sourceFile).dir
+  baseDir = parentDir(parentDir(sourceDir))
   result = baseDir
 
 proc buildPaths*(a: string): tuple[repoDir: string, buildDir: string, wrapperPath: string,
     testPath: string, wrapperMain: string, installDir: string, libDir: string, binDir: string] =
-  ## a: nimAutoWrapper base directory
+  ## a: cNimWrapper base directory
   ## Builds repo, build, wrapper, and test paths for libsodium headers.
   var
     repoDir: string = joinPath(a, "testCRepos", "repos", "libsodium")
     buildDir: string = joinPath(a, "testCRepos", "builds", "libsodium")
     wrapperPath: string = joinPath(buildDir, "libsodium_wrapper.nim")
     testPath: string = joinPath(a, "tests", "realworld", "libsodium_test.nim")
-    wrapperMain: string = joinPath(a, "nimAutoWrapper.nim")
+    wrapperMain: string = joinPath(a, "cNimWrapper.nim")
     installDir: string = joinPath(buildDir, "install")
     libDir: string = joinPath(installDir, "lib")
     binDir: string = joinPath(installDir, "bin")
@@ -85,7 +75,7 @@ proc buildLinkFlags*(a: string): string =
 proc main*() =
   ## Builds libsodium wrappers and runs SHA256 tests against known vectors.
   var
-    baseDir: string = findNimAutoWrapperDir()
+    baseDir: string = findcNimWrapperDir()
     paths: tuple[repoDir: string, buildDir: string, wrapperPath: string, testPath: string,
       wrapperMain: string, installDir: string, libDir: string, binDir: string] = buildPaths(baseDir)
     headerPath: string = joinPath(paths.buildDir, "sodium_combined.h")
@@ -135,3 +125,4 @@ proc main*() =
 
 when isMainModule:
   main()
+

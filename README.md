@@ -1,4 +1,4 @@
-# nimAutoWrapper
+# cNimWrapper
 
 WARNING: Use at your own risk. This project is "vibe" coded.
 
@@ -11,7 +11,7 @@ Quick start
 -------------------------------------------------------------------------------
 
 ```sh
-nim c -r nimAutoWrapper.nim <input.h> <output.nim>
+nim c -r cNimWrapper.nim <input.h> <output.nim>
 ```
 
 This writes:
@@ -43,7 +43,7 @@ Module map (what each file does)
 -------------------------------------------------------------------------------
 
 Core:
-- `nimAutoWrapper.nim`: CLI + file I/O; writes debug JSON.
+- `cNimWrapper.nim`: CLI + file I/O; writes debug JSON.
 - `src/tokenizer.nim`: turns C text into flat tokens with line/col.
 - `src/parser_core.nim`: runs parsers in order; logs unparsed tokens.
 - `src/default_parsers.nim`: parser registry order.
@@ -244,7 +244,7 @@ licenses in their respective repositories.
 Layout
 -------------------------------------------------------------------------------
 
-- `nimAutoWrapper.nim`: CLI entry point.
+- `cNimWrapper.nim`: CLI entry point.
 - `src/`: tokenizer, parser registry, parser modules.
 - `tests/functionality/`: unit tests for tokenizer and helpers.
 - `tests/realworld/`: wrapper + validation runners for real C libraries (AES, BLAKE2, libsodium, liboqs).
@@ -261,3 +261,4 @@ Nimble tasks
 - `nimble test_all`
 - `nimble setup`
 - `nimble start`
+

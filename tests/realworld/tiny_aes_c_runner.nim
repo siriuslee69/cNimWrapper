@@ -1,36 +1,26 @@
 import os
 import osproc
 
-proc findNimAutoWrapperDir*(): string =
-  ## Returns the nimAutoWrapper base directory from the current working directory.
-  ## Falls back to the current directory when the folder is not found.
+proc findcNimWrapperDir*(): string =
+  ## Returns the cNimWrapper base directory based on this file's location.
   var
-    cwd: string = getCurrentDir()
-    head: string = ""
-    tail: string = ""
-    candidate: string = ""
+    sourceFile: string = currentSourcePath()
+    sourceDir: string = ""
     baseDir: string = ""
-  (head, tail) = splitPath(cwd)
-  if tail == "nimAutoWrapper":
-    baseDir = cwd
-  else:
-    candidate = joinPath(cwd, "nimAutoWrapper")
-    if dirExists(candidate):
-      baseDir = candidate
-    else:
-      baseDir = cwd
+  sourceDir = splitFile(sourceFile).dir
+  baseDir = parentDir(parentDir(sourceDir))
   result = baseDir
 
 proc buildPaths*(a: string): tuple[repoDir: string, buildDir: string, wrapperPath: string,
     testPath: string, wrapperMain: string] =
-  ## a: nimAutoWrapper base directory
+  ## a: cNimWrapper base directory
   ## Builds repo, build, wrapper, and test paths for tiny-AES-c.
   var
     repoDir: string = joinPath(a, "testCRepos", "repos", "tiny-AES-c")
     buildDir: string = joinPath(a, "testCRepos", "builds", "tiny-AES-c")
     wrapperPath: string = joinPath(buildDir, "aes_wrapper.nim")
     testPath: string = joinPath(a, "tests", "realworld", "tiny_aes_c_test.nim")
-    wrapperMain: string = joinPath(a, "nimAutoWrapper.nim")
+    wrapperMain: string = joinPath(a, "cNimWrapper.nim")
   result = (repoDir: repoDir, buildDir: buildDir, wrapperPath: wrapperPath, testPath: testPath,
     wrapperMain: wrapperMain)
 
@@ -46,7 +36,7 @@ proc runCmd*(a: string): int =
 proc main*() =
   ## Builds tiny-AES-c wrappers and runs ECB tests against known vectors.
   var
-    baseDir: string = findNimAutoWrapperDir()
+    baseDir: string = findcNimWrapperDir()
     paths: tuple[repoDir: string, buildDir: string, wrapperPath: string, testPath: string,
       wrapperMain: string] = buildPaths(baseDir)
     headerPath: string = joinPath(paths.repoDir, "aes.h")
@@ -73,3 +63,4 @@ proc main*() =
 
 when isMainModule:
   main()
+

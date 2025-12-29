@@ -50,14 +50,14 @@ proc wrapFile*(a: string, b: string, c: WrapperConfig) =
 proc main*() =
   ## entry point for CLI usage
   ## Parses CLI args and runs a file-to-file wrapper pass.
-  ## Example: `nimAutoWrapper input.h output.nim`.
+  ## Example: `cNimWrapper input.h output.nim`.
   var
     args: seq[string] = commandLineParams()
     inputPath: string = ""
     outputPath: string = ""
     config: WrapperConfig
   if args.len < 2:
-    echo "usage: nimAutoWrapper <input.h> <output.nim>"
+    echo "usage: cNimWrapper <input.h> <output.nim>"
     return
   inputPath = args[0]
   outputPath = args[1]
@@ -67,3 +67,4 @@ proc main*() =
 
 when isMainModule:
   main()
+

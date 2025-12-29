@@ -1,27 +1,17 @@
 import os
 
-proc findNimAutoWrapperDir*(): string =
-  ## Returns the nimAutoWrapper base directory from the current working directory.
-  ## Falls back to the current directory when the folder is not found.
+proc findcNimWrapperDir*(): string =
+  ## Returns the cNimWrapper base directory based on this file's location.
   var
-    cwd: string = getCurrentDir()
-    head: string = ""
-    tail: string = ""
-    candidate: string = ""
+    sourceFile: string = currentSourcePath()
+    sourceDir: string = ""
     baseDir: string = ""
-  (head, tail) = splitPath(cwd)
-  if tail == "nimAutoWrapper":
-    baseDir = cwd
-  else:
-    candidate = joinPath(cwd, "nimAutoWrapper")
-    if dirExists(candidate):
-      baseDir = candidate
-    else:
-      baseDir = cwd
+  sourceDir = splitFile(sourceFile).dir
+  baseDir = parentDir(sourceDir)
   result = baseDir
 
 proc buildPaths*(a: string): tuple[repoDir: string, buildDir: string, outPath: string] =
-  ## a: nimAutoWrapper base directory
+  ## a: cNimWrapper base directory
   ## Builds libsodium repo and combined header paths.
   var
     repoDir: string = joinPath(a, "testCRepos", "repos", "libsodium")
@@ -78,7 +68,7 @@ proc writeCombined*(a: seq[string], b: string) =
 proc main*() =
   ## Builds a combined libsodium header with the required crypto APIs.
   var
-    baseDir: string = findNimAutoWrapperDir()
+    baseDir: string = findcNimWrapperDir()
     paths: tuple[repoDir: string, buildDir: string, outPath: string] = buildPaths(baseDir)
     headers: seq[string] = @[]
   if not dirExists(paths.repoDir):
@@ -91,3 +81,4 @@ proc main*() =
 
 when isMainModule:
   main()
+

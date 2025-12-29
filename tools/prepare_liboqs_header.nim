@@ -2,29 +2,19 @@ import algorithm
 import os
 import strutils
 
-proc findNimAutoWrapperDir*(): string =
-  ## Returns the nimAutoWrapper base directory from the current working directory.
-  ## Falls back to the current directory when the folder is not found.
+proc findcNimWrapperDir*(): string =
+  ## Returns the cNimWrapper base directory based on this file's location.
   var
-    cwd: string = getCurrentDir()
-    head: string = ""
-    tail: string = ""
-    candidate: string = ""
+    sourceFile: string = currentSourcePath()
+    sourceDir: string = ""
     baseDir: string = ""
-  (head, tail) = splitPath(cwd)
-  if tail == "nimAutoWrapper":
-    baseDir = cwd
-  else:
-    candidate = joinPath(cwd, "nimAutoWrapper")
-    if dirExists(candidate):
-      baseDir = candidate
-    else:
-      baseDir = cwd
+  sourceDir = splitFile(sourceFile).dir
+  baseDir = parentDir(sourceDir)
   result = baseDir
 
 proc buildPaths*(a: string): tuple[repoDir: string, buildDir: string, opsPath: string,
     shaPath: string, shaOutPath: string, includeDir: string, fullOutPath: string] =
-  ## a: nimAutoWrapper base directory
+  ## a: cNimWrapper base directory
   ## Builds liboqs repo, build, and header paths for combined headers.
   var
     repoDir: string = joinPath(a, "testCRepos", "repos", "liboqs")
@@ -107,7 +97,7 @@ proc orderHeaders*(a: seq[string]): seq[string] =
   result = ordered
 
 proc ensureSha2CombinedHeader*(a: string) =
-  ## a: nimAutoWrapper base directory
+  ## a: cNimWrapper base directory
   ## Writes a combined header with sha2_ops.h and sha2.h for wrapper input.
   var
     paths: tuple[repoDir: string, buildDir: string, opsPath: string, shaPath: string,
@@ -124,7 +114,7 @@ proc ensureSha2CombinedHeader*(a: string) =
   createDir(paths.buildDir)
   opsText = readFile(paths.opsPath)
   shaText = readFile(paths.shaPath)
-  outText = "/* Auto-generated combined header for nimAutoWrapper. */" & "\n" &
+  outText = "/* Auto-generated combined header for cNimWrapper. */" & "\n" &
     "#ifndef OQS_SHA2_COMBINED_H" & "\n" &
     "#define OQS_SHA2_COMBINED_H" & "\n\n" &
     opsText & "\n\n" &
@@ -133,7 +123,7 @@ proc ensureSha2CombinedHeader*(a: string) =
   writeFile(paths.shaOutPath, outText)
 
 proc ensureFullCombinedHeader*(a: string) =
-  ## a: nimAutoWrapper base directory
+  ## a: cNimWrapper base directory
   ## Writes a combined header containing all installed liboqs headers.
   var
     paths: tuple[repoDir: string, buildDir: string, opsPath: string, shaPath: string,
@@ -155,7 +145,7 @@ proc ensureFullCombinedHeader*(a: string) =
     body = readFile(ordered[i])
     text.add body & "\n\n"
     inc i
-  text = "/* Auto-generated combined header for nimAutoWrapper. */" & "\n" &
+  text = "/* Auto-generated combined header for cNimWrapper. */" & "\n" &
     "#ifndef OQS_FULL_COMBINED_H" & "\n" &
     "#define OQS_FULL_COMBINED_H" & "\n\n" &
     text &
@@ -165,9 +155,10 @@ proc ensureFullCombinedHeader*(a: string) =
 proc main*() =
   ## Generates the combined liboqs headers.
   var
-    baseDir: string = findNimAutoWrapperDir()
+    baseDir: string = findcNimWrapperDir()
   ensureSha2CombinedHeader(baseDir)
   ensureFullCombinedHeader(baseDir)
 
 when isMainModule:
   main()
+

@@ -5,28 +5,28 @@ license       = "UNLICENSED"
 
 task build_aes, "Generate wrapper for tiny-AES-c":
   exec "nim r tools/ensure_env.nim -- --submodules --builddirs"
-  exec "nim c -r nimAutoWrapper.nim testCRepos/repos/tiny-AES-c/aes.h testCRepos/builds/tiny-AES-c/aes_wrapper.nim"
+  exec "nim c -r cNimWrapper.nim testCRepos/repos/tiny-AES-c/aes.h testCRepos/builds/tiny-AES-c/aes_wrapper.nim"
 
 task build_blake2, "Generate wrapper for BLAKE2 reference code":
   exec "nim r tools/ensure_env.nim -- --submodules --builddirs"
-  exec "nim c -r nimAutoWrapper.nim testCRepos/repos/BLAKE2/ref/blake2.h testCRepos/builds/BLAKE2/blake2_wrapper.nim"
+  exec "nim c -r cNimWrapper.nim testCRepos/repos/BLAKE2/ref/blake2.h testCRepos/builds/BLAKE2/blake2_wrapper.nim"
 
 task build_openssl, "Build OpenSSL 3 and generate wrapper":
   exec "nim r tools/ensure_env.nim -- --submodules --builddirs"
   exec "nim r tools/build_openssl.nim"
-  exec "nim c -r nimAutoWrapper.nim testCRepos/repos/openssl/include/openssl/sha.h testCRepos/builds/openssl/openssl_sha_wrapper.nim"
+  exec "nim c -r cNimWrapper.nim testCRepos/repos/openssl/include/openssl/sha.h testCRepos/builds/openssl/openssl_sha_wrapper.nim"
 
 task build_libsodium, "Build libsodium and generate wrapper":
   exec "nim r tools/ensure_env.nim -- --submodules --builddirs"
   exec "nim r tools/build_libsodium.nim"
   exec "nim r tools/prepare_libsodium_header.nim"
-  exec "nim c -r nimAutoWrapper.nim testCRepos/builds/libsodium/sodium_combined.h testCRepos/builds/libsodium/libsodium_wrapper.nim"
+  exec "nim c -r cNimWrapper.nim testCRepos/builds/libsodium/sodium_combined.h testCRepos/builds/libsodium/libsodium_wrapper.nim"
 
 task build_liboqs, "Build liboqs and generate wrapper":
   exec "nim r tools/ensure_env.nim -- --submodules --builddirs"
   exec "nim r tools/build_liboqs.nim"
   exec "nim r tools/prepare_liboqs_header.nim"
-  exec "nim c -r nimAutoWrapper.nim testCRepos/builds/liboqs/oqs_full_combined.h testCRepos/builds/liboqs/liboqs_wrapper.nim"
+  exec "nim c -r cNimWrapper.nim testCRepos/builds/liboqs/oqs_full_combined.h testCRepos/builds/liboqs/liboqs_wrapper.nim"
 
 task build_c_repos_basic, "Build C test repos without OpenSSL":
   exec "nim r tools/ensure_env.nim -- --submodules --builddirs"
@@ -106,3 +106,4 @@ task test_all_full, "Run all tests including OpenSSL":
   exec "nim c -r tests/realworld/openssl3_runner.nim"
   exec "nim c -r tests/realworld/libsodium_runner.nim"
   exec "nim c -r tests/realworld/liboqs_runner.nim"
+
