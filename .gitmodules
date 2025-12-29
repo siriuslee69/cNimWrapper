@@ -1,0 +1,6 @@
+[submodule "testCRepos/repos/tiny-AES-c"]
+	path = testCRepos/repos/tiny-AES-c
+	url = https://github.com/kokke/tiny-AES-c
+[submodule "testCRepos/repos/BLAKE2"]
+	path = testCRepos/repos/BLAKE2
+	url = https://github.com/BLAKE2/BLAKE2
