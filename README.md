@@ -1,4 +1,4 @@
-# nimAutoWrapper
+# cNimWrapper
 
 WARNING: Use at your own risk. This project is "vibe" coded.
 
