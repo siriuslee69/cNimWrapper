@@ -1,5 +1,7 @@
 # nimAutoWrapper
 
+WARNING: Use at your own risk. This project is "vibe" coded.
+
 Modular C header wrapper generator for Nim, with small real-world validation harnesses.
 
 This README explains how the parser works, module order, naming rules, and debug output.
@@ -47,6 +49,7 @@ Core:
 - `src/default_parsers.nim`: parser registry order.
 - `src/types.nim`: token types, parser state, debug entry type.
 - `src/utils.nim`: token helpers and output helpers.
+- `src/type_mapper.nim`: maps C types to Nim types with pointer depth.
 
 Parsers (each handles one C shape):
 - `src/preprocessor_parser.nim`: consumes non-define/include directives.
@@ -56,7 +59,7 @@ Parsers (each handles one C shape):
 - `src/enum_parser.nim`: `enum` to Nim enum.
 - `src/macro_struct_parser.nim`: `MACRO(struct ...)` wrappers.
 - `src/struct_parser.nim`: `struct` to Nim object.
-- `src/typedef_parser.nim`: `typedef` to Nim alias.
+- `src/typedef_parser.nim`: `typedef` to Nim alias or object (struct typedefs).
 - `src/function_parser.nim`: function prototypes to `proc`.
 
 Naming + debug helpers:
@@ -80,7 +83,7 @@ The registry order is important. The default order is:
 6) enum_parser          (enum -> Nim enum)
 7) macro_struct_parser  (MACRO(struct ...))
 8) struct_parser        (struct -> object)
-9) typedef_parser       (typedef -> distinct pointer)
+9) typedef_parser       (typedef -> distinct pointer or object)
 10) function_parser     (prototype -> proc)
 ```
 
@@ -115,7 +118,7 @@ typedef struct blake2s_param__ blake2s_param;
 // Nim (collision resolution)
 type
   blake2s_param_str* {.importc: "blake2s_param__".} = object ...
-  blake2s_param_tyd* {.importc: "blake2s_param".} = distinct pointer
+  blake2s_param_tyd* {.importc: "blake2s_param".} = object ...
 ```
 
 -------------------------------------------------------------------------------
@@ -154,10 +157,21 @@ Examples (what gets generated)
 Function prototype:
 ```
 // C
-int foo(const void* in, size_t n);
+int foo(const uint8_t* in, size_t n);
 
 // Nim
-proc foo*(p_in: pointer, n: csize_t): cint {.importc.}
+proc foo*(p_in: ptr uint8, n: csize_t): cint {.importc.}
+```
+
+Struct typedef:
+```
+// C
+typedef struct OQS_KEM { const char * method_name; size_t length_public_key; } OQS_KEM;
+
+// Nim
+type OQS_KEM* {.importc: "OQS_KEM".} = object
+  method_name*: cstring
+  length_public_key*: csize_t
 ```
 
 Define -> const:
@@ -213,15 +227,26 @@ extern "C" {
 The extern block is skipped and logged in `output.debug.json`.
 
 -------------------------------------------------------------------------------
+Test coverage (realworld)
+-------------------------------------------------------------------------------
+
+- `tiny-AES-c`: ECB/CBC/CTR vectors.
+- `BLAKE2`: reference blake2s keyed vector.
+- `libsodium`: SHA256/SHA512/BLAKE2b-256, XChaCha20 stream, AES256-GCM (if available).
+- `liboqs`: KEM roundtrips (Kyber/McEliece), SIG sign/verify (Falcon).
+
+Each runner regenerates the wrapper before building the test binary.
+
+-------------------------------------------------------------------------------
 Layout
 -------------------------------------------------------------------------------
 
 - `nimAutoWrapper.nim`: CLI entry point.
 - `src/`: tokenizer, parser registry, parser modules.
 - `tests/functionality/`: unit tests for tokenizer and helpers.
-- `tests/realworld/`: wrapper + validation runners for real C libraries.
+- `tests/realworld/`: wrapper + validation runners for real C libraries (AES, BLAKE2, libsodium, liboqs).
 - `testCRepos/repos/`: C repos (submodules).
-- `testCRepos/builds/`: generated wrappers and build artifacts.
+- `testCRepos/builds/`: generated wrappers, combined headers, and build artifacts.
 
 -------------------------------------------------------------------------------
 Nimble tasks
