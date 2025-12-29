@@ -1,3 +1,4 @@
+import strutils
 import tables
 import debugger
 import types
@@ -14,6 +15,20 @@ proc altNameForKind*(a: string, b: string): string =
   else:
     result = ""
 
+proc normalizeUsedName*(a: string): string =
+  ## a: Nim identifier
+  ## Returns a style-insensitive key for Nim identifiers.
+  var
+    i: int = 0
+    l: int = a.len
+    ch: char
+  result = ""
+  while i < l:
+    ch = a[i]
+    if ch != '_':
+      result.add(toLowerAscii(ch))
+    inc i
+
 proc registerName*(s: var ParserState, a: string, b: string, c: string): string =
   ## s: parser state
   ## a: desired Nim name
@@ -26,17 +41,23 @@ proc registerName*(s: var ParserState, a: string, b: string, c: string): string 
     alt: string = ""
     base: string = ""
     count: int = 0
+    baseKey: string = ""
+    altKey: string = ""
+    nameKey: string = ""
   if s.nameMap.hasKey(key):
     result = s.nameMap[key]
     return
-  if not s.usedNames.hasKey(a):
-    s.usedNames[a] = 1
+  baseKey = normalizeUsedName(a)
+  if not s.usedNames.hasKey(baseKey):
+    s.usedNames[baseKey] = 1
     s.nameMap[key] = a
     result = a
     return
   alt = altNameForKind(a, c)
-  if alt.len > 0 and not s.usedNames.hasKey(alt):
-    s.usedNames[alt] = 1
+  if alt.len > 0:
+    altKey = normalizeUsedName(alt)
+  if alt.len > 0 and not s.usedNames.hasKey(altKey):
+    s.usedNames[altKey] = 1
     s.nameMap[key] = alt
     recordCollision(s, a, b, alt)
     result = alt
@@ -44,16 +65,19 @@ proc registerName*(s: var ParserState, a: string, b: string, c: string): string 
   base = a
   if alt.len > 0:
     base = alt
-  if s.usedNames.hasKey(base):
-    count = s.usedNames[base]
+  baseKey = normalizeUsedName(base)
+  if s.usedNames.hasKey(baseKey):
+    count = s.usedNames[baseKey]
   else:
     count = 1
   name = base & "_" & $count
-  while s.usedNames.hasKey(name):
+  nameKey = normalizeUsedName(name)
+  while s.usedNames.hasKey(nameKey):
     inc count
     name = base & "_" & $count
-  s.usedNames[base] = count + 1
-  s.usedNames[name] = 1
+    nameKey = normalizeUsedName(name)
+  s.usedNames[baseKey] = count + 1
+  s.usedNames[nameKey] = 1
   s.nameMap[key] = name
   recordCollision(s, a, b, name)
   result = name

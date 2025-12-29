@@ -65,8 +65,8 @@ proc main*() =
   code = runCmd(wrapperCmd)
   if code != 0:
     quit(code)
-  testCmd = "nim c -r --nimcache:" & quoteShell(testCache) & " --path:" &
-    quoteShell(paths.buildDir) & " " & quoteShell(paths.testPath)
+  testCmd = "nim c -r --nimcache:" & quoteShell(testCache) & " " &
+    quoteShell(paths.testPath)
   code = runCmd(testCmd)
   if code != 0:
     quit(code)

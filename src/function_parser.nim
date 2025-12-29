@@ -1,6 +1,7 @@
 import strutils
 import name_mangle
 import name_registry
+import type_mapper
 import types
 import utils
 
@@ -93,34 +94,24 @@ proc paramNameFromTokens*(a: seq[Token]): string =
   else:
     result = name
 
-proc paramTypeFromTokens*(a: seq[Token]): string =
+proc paramTypeFromTokens*(s: var ParserState, a: seq[Token], b: string): string =
+  ## s: parser state
   ## a: parameter tokens
-  ## Returns the Nim type for known C types, defaulting to pointer.
-  var
-    i: int = 0
-    l: int = a.len
-    tok: Token
-    hasSizeT: bool = false
-  while i < l:
-    tok = a[i]
-    if tok.kind == tkIdentifier and tok.text == "size_t":
-      hasSizeT = true
-    inc i
-  if hasSizeT:
-    result = "csize_t"
-  else:
-    result = "pointer"
+  ## b: parameter name to skip
+  ## Returns the Nim type for the parameter.
+  result = mapTokensToNimType(s, a, b)
 
-proc paramInfoFromTokens*(a: seq[Token]): ParamInfo =
+proc paramInfoFromTokens*(s: var ParserState, a: seq[Token]): ParamInfo =
+  ## s: parser state
   ## a: parameter tokens
   ## Builds a ParamInfo with a name and Nim type.
   var
     info: ParamInfo
   info.name = paramNameFromTokens(a)
-  info.nimType = paramTypeFromTokens(a)
+  info.nimType = paramTypeFromTokens(s, a, info.name)
   result = info
 
-proc collectParamInfos*(s: ParserState): seq[ParamInfo] =
+proc collectParamInfos*(s: var ParserState): seq[ParamInfo] =
   ## s: parser state
   ## Collects parameter infos between parentheses.
   ## Example: `int foo(int a, size_t n)` yields `@["a: pointer", "n: csize_t"]`.
@@ -141,12 +132,12 @@ proc collectParamInfos*(s: ParserState): seq[ParamInfo] =
       continue
     if tok.text == ")":
       if current.len > 0:
-        info = paramInfoFromTokens(current)
+        info = paramInfoFromTokens(s, current)
         if info.name.len > 0:
           params.add info
       break
     if tok.text == ",":
-      info = paramInfoFromTokens(current)
+      info = paramInfoFromTokens(s, current)
       if info.name.len > 0:
         params.add info
       current = @[]

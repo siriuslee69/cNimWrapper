@@ -7,7 +7,7 @@ const
 {.compile: aesCPath.}
 {.passC: "-I" & repoDir.}
 
-import aes_wrapper
+import "../../testCRepos/builds/tiny-AES-c/aes_wrapper"
 
 const
   ctxBytes*: int = 512
@@ -89,10 +89,15 @@ proc bytesEqual*(a: openArray[uint8], b: openArray[uint8]): bool =
     inc i
   result = true
 
-proc toPtr*(a: var openArray[uint8]): pointer =
+proc toPtr*(a: var openArray[uint8]): ptr uint8 =
   ## a: buffer to convert
-  ## Returns a raw pointer to the first element.
-  result = cast[pointer](unsafeAddr a[0])
+  ## Returns a typed pointer to the first element.
+  result = cast[ptr uint8](unsafeAddr a[0])
+
+proc toCtxPtr*(a: var openArray[uint8]): ptr AES_ctx =
+  ## a: context buffer
+  ## Returns a typed pointer to the AES context.
+  result = cast[ptr AES_ctx](unsafeAddr a[0])
 
 suite "tiny-AES-c ECB":
   test "encrypt matches test.c vector":
@@ -101,8 +106,8 @@ suite "tiny-AES-c ECB":
       key: array[16, uint8] = key128
       buf: array[16, uint8] = ecbPlain
     zeroBytes(ctxMem)
-    discard AES_init_ctx(toPtr(ctxMem), toPtr(key))
-    discard AES_ECB_encrypt(toPtr(ctxMem), toPtr(buf))
+    discard AES_init_ctx(toCtxPtr(ctxMem), toPtr(key))
+    discard AES_ECB_encrypt(toCtxPtr(ctxMem), toPtr(buf))
     check bytesEqual(buf, ecbCipher)
 
   test "decrypt matches test.c vector":
@@ -111,8 +116,8 @@ suite "tiny-AES-c ECB":
       key: array[16, uint8] = key128
       buf: array[16, uint8] = ecbCipher
     zeroBytes(ctxMem)
-    discard AES_init_ctx(toPtr(ctxMem), toPtr(key))
-    discard AES_ECB_decrypt(toPtr(ctxMem), toPtr(buf))
+    discard AES_init_ctx(toCtxPtr(ctxMem), toPtr(key))
+    discard AES_ECB_decrypt(toCtxPtr(ctxMem), toPtr(buf))
     check bytesEqual(buf, ecbPlain)
 
 suite "tiny-AES-c CBC":
@@ -123,8 +128,8 @@ suite "tiny-AES-c CBC":
       iv: array[16, uint8] = cbcIv
       buf: array[64, uint8] = cbcPlain64
     zeroBytes(ctxMem)
-    discard AES_init_ctx_iv(toPtr(ctxMem), toPtr(key), toPtr(iv))
-    discard AES_CBC_encrypt_buffer(toPtr(ctxMem), toPtr(buf), csize_t(64))
+    discard AES_init_ctx_iv(toCtxPtr(ctxMem), toPtr(key), toPtr(iv))
+    discard AES_CBC_encrypt_buffer(toCtxPtr(ctxMem), toPtr(buf), csize_t(64))
     check bytesEqual(buf, cbcCipher64)
 
   test "decrypt matches test.c vector":
@@ -134,8 +139,8 @@ suite "tiny-AES-c CBC":
       iv: array[16, uint8] = cbcIv
       buf: array[64, uint8] = cbcCipher64
     zeroBytes(ctxMem)
-    discard AES_init_ctx_iv(toPtr(ctxMem), toPtr(key), toPtr(iv))
-    discard AES_CBC_decrypt_buffer(toPtr(ctxMem), toPtr(buf), csize_t(64))
+    discard AES_init_ctx_iv(toCtxPtr(ctxMem), toPtr(key), toPtr(iv))
+    discard AES_CBC_decrypt_buffer(toCtxPtr(ctxMem), toPtr(buf), csize_t(64))
     check bytesEqual(buf, cbcPlain64)
 
 suite "tiny-AES-c CTR":
@@ -146,6 +151,6 @@ suite "tiny-AES-c CTR":
       iv: array[16, uint8] = ctrIv
       buf: array[64, uint8] = ctrInput64
     zeroBytes(ctxMem)
-    discard AES_init_ctx_iv(toPtr(ctxMem), toPtr(key), toPtr(iv))
-    discard AES_CTR_xcrypt_buffer(toPtr(ctxMem), toPtr(buf), csize_t(64))
+    discard AES_init_ctx_iv(toCtxPtr(ctxMem), toPtr(key), toPtr(iv))
+    discard AES_CTR_xcrypt_buffer(toCtxPtr(ctxMem), toPtr(buf), csize_t(64))
     check bytesEqual(buf, cbcPlain64)

@@ -41,6 +41,19 @@ proc hasTemplateLine*(s: ParserState, b: string): bool =
     dec i
   result = false
 
+proc isSimpleDefineBody*(a: seq[Token]): bool =
+  ## a: define body tokens
+  ## Returns true when the body has no identifiers and can be emitted as a const.
+  var
+    i: int = 0
+    l: int = a.len
+  while i < l:
+    if a[i].kind == tkIdentifier:
+      result = false
+      return
+    inc i
+  result = true
+
 proc formatTemplateParams*(a: seq[string]): string =
   ## a: parameter names
   ## Formats names into a Nim template parameter list.
@@ -52,6 +65,47 @@ proc formatTemplateParams*(a: seq[string]): string =
     if a[i].len > 0:
       parts.add a[i] & ": untyped"
   result = parts.join(", ")
+
+proc emitDefineTemplate*(s: var ParserState, b: string, c: seq[string], d: string,
+    e: bool) =
+  ## s: parser state
+  ## b: template name
+  ## c: template parameter names
+  ## d: macro body text
+  ## e: include parentheses when there are no parameters
+  ## Emits a template stub for a macro definition.
+  var
+    paramsText: string = formatTemplateParams(c)
+  if paramsText.len == 0:
+    if e:
+      emitLine(s, "template " & b & "*(): untyped =")
+    else:
+      emitLine(s, "template " & b & "*: untyped =")
+  else:
+    emitLine(s, "template " & b & "*(" & paramsText & "): untyped =")
+  if s.config.emitComments and d.len > 0:
+    emitLine(s, "  ## C macro: " & d)
+  emitLine(s, "  discard")
+
+proc collectDefineBodyTokens*(s: var ParserState): seq[Token] =
+  ## s: parser state
+  ## Collects macro body tokens across backslash-newline continuations.
+  var
+    items: seq[Token] = @[]
+    tok: Token
+    continueLine: bool = true
+  while continueLine and not isAtEnd(s):
+    continueLine = false
+    tok = peekToken(s)
+    while not isAtEnd(s) and tok.kind != tkNewline:
+      items.add advanceToken(s)
+      tok = peekToken(s)
+    if tok.kind == tkNewline:
+      discard advanceToken(s)
+    if items.len > 0 and items[^1].text == "\\":
+      discard items.pop()
+      continueLine = true
+  result = items
 
 proc tryParseDefine*(s: var ParserState): bool =
   ## s: parser state
@@ -66,7 +120,6 @@ proc tryParseDefine*(s: var ParserState): bool =
     bodyText: string = ""
     constLine: string = ""
     params: seq[string] = @[]
-    paramsText: string = ""
     paramName: string = ""
     tok: Token
     isFunc: bool = false
@@ -97,23 +150,16 @@ proc tryParseDefine*(s: var ParserState): bool =
         params.add paramName
       else:
         discard advanceToken(s)
-  bodyTokens = collectUntilNewline(s)
+  bodyTokens = collectDefineBodyTokens(s)
   if not isFunc:
     bodyTokens = stripLeadingCastTokens(bodyTokens)
   bodyText = tokensToText(bodyTokens)
-  if isFunc:
+  if isFunc or not isSimpleDefineBody(bodyTokens):
     name = registerName(s, name, origName, "template")
     if hasTemplateLine(s, name):
       result = true
       return
-    paramsText = formatTemplateParams(params)
-    if paramsText.len == 0:
-      emitLine(s, "template " & name & "*(): untyped =")
-    else:
-      emitLine(s, "template " & name & "*(" & paramsText & "): untyped =")
-    if s.config.emitComments and bodyText.len > 0:
-      emitLine(s, "  ## C macro: " & bodyText)
-    emitLine(s, "  discard")
+    emitDefineTemplate(s, name, params, bodyText, isFunc)
   else:
     name = registerName(s, name, origName, "const")
     if bodyText.len == 0:

@@ -3,6 +3,42 @@ import name_registry
 import types
 import utils
 
+proc findFuncPtrFieldName*(a: seq[Token]): string =
+  ## a: field declaration tokens
+  ## Returns the identifier from a function pointer field when present.
+  var
+    i: int = 0
+    l: int = a.len
+  while i + 3 < l:
+    if a[i].text == "(" and a[i + 1].text == "*" and a[i + 2].kind == tkIdentifier and
+      a[i + 3].text == ")":
+      result = a[i + 2].text
+      return
+    inc i
+  result = ""
+
+proc fieldNameFromTokens*(a: seq[Token]): string =
+  ## a: field declaration tokens
+  ## Returns the field name for a struct declaration.
+  var
+    i: int = 0
+    l: int = a.len
+    name: string = ""
+    tok: Token
+    funcName: string = ""
+  funcName = findFuncPtrFieldName(a)
+  if funcName.len > 0:
+    result = funcName
+    return
+  while i < l:
+    tok = a[i]
+    if tok.kind == tkIdentifier:
+      name = tok.text
+    if tok.text == ":" or tok.text == "[":
+      break
+    inc i
+  result = name
+
 proc tryParseStruct*(s: var ParserState): bool =
   ## s: parser state
   ## Parses a C struct and emits a Nim object with placeholder fields.
@@ -12,12 +48,12 @@ proc tryParseStruct*(s: var ParserState): bool =
     structNameOrig: string = "AnonymousStruct"
     namePragma: string = ""
     fields: seq[string] = @[]
-    currentField: string = ""
     fieldName: string = ""
     fieldPragma: string = ""
     tok: Token
     l: int = 0
     hasName: bool = false
+    fieldTokens: seq[Token] = @[]
   discard skipNewlines(s)
   if not matchText(s, "struct"):
     s.pos = mark
@@ -40,12 +76,13 @@ proc tryParseStruct*(s: var ParserState): bool =
     if matchText(s, "}"):
       break
     tok = advanceToken(s)
-    if tok.kind == tkIdentifier:
-      currentField = tok.text
     if tok.text == ";":
-      if currentField.len > 0:
-        fields.add currentField
-      currentField = ""
+      fieldName = fieldNameFromTokens(fieldTokens)
+      if fieldName.len > 0:
+        fields.add fieldName
+      fieldTokens = @[]
+    else:
+      fieldTokens.add tok
   discard skipNewlines(s)
   discard matchText(s, ";")
   if hasName:

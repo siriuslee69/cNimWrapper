@@ -4,3 +4,12 @@
 [submodule "testCRepos/repos/BLAKE2"]
 	path = testCRepos/repos/BLAKE2
 	url = https://github.com/BLAKE2/BLAKE2
+[submodule "testCRepos/repos/openssl"]
+	path = testCRepos/repos/openssl
+	url = https://github.com/openssl/openssl.git
+[submodule "testCRepos/repos/libsodium"]
+	path = testCRepos/repos/libsodium
+	url = https://github.com/jedisct1/libsodium.git
+[submodule "testCRepos/repos/liboqs"]
+	path = testCRepos/repos/liboqs
+	url = https://github.com/open-quantum-safe/liboqs.git

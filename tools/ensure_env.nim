@@ -4,11 +4,17 @@ import osproc
 const
   aesHeader* = "testCRepos/repos/tiny-AES-c/aes.h"
   blakeHeader* = "testCRepos/repos/BLAKE2/ref/blake2.h"
+  opensslHeader* = "testCRepos/repos/openssl/include/openssl/sha.h"
+  libsodiumHeader* = "testCRepos/repos/libsodium/src/libsodium/include/sodium/crypto_hash_sha256.h"
+  liboqsHeader* = "testCRepos/repos/liboqs/src/common/sha2/sha2.h"
 
 let
   buildDirs* = @[
     "testCRepos/builds/tiny-AES-c",
-    "testCRepos/builds/BLAKE2"
+    "testCRepos/builds/BLAKE2",
+    "testCRepos/builds/openssl",
+    "testCRepos/builds/libsodium",
+    "testCRepos/builds/liboqs"
   ]
 
 proc runCmd*(a: string): int =
@@ -25,7 +31,10 @@ proc needSubmodules*(): bool =
   var
     hasAes: bool = fileExists(aesHeader)
     hasBlake: bool = fileExists(blakeHeader)
-  result = not (hasAes and hasBlake)
+    hasOpenSsl: bool = fileExists(opensslHeader)
+    hasLibsodium: bool = fileExists(libsodiumHeader)
+    hasLiboqs: bool = fileExists(liboqsHeader)
+  result = not (hasAes and hasBlake and hasOpenSsl and hasLibsodium and hasLiboqs)
 
 proc ensureSubmodules*() =
   ## Ensures submodules are present, fetching when headers are missing.

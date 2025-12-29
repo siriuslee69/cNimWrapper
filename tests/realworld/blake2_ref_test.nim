@@ -7,7 +7,7 @@ const
 {.compile: blake2sCPath.}
 {.passC: "-I" & repoDir.}
 
-import blake2_wrapper
+import "../../testCRepos/builds/BLAKE2/blake2_wrapper"
 
 const
   key32*: array[32, uint8] = [
@@ -50,10 +50,10 @@ proc bytesEqual*(a: openArray[uint8], b: openArray[uint8]): bool =
     inc i
   result = true
 
-proc toPtr*(a: var openArray[uint8]): pointer =
+proc toPtr*(a: var openArray[uint8]): ptr uint8 =
   ## a: buffer to convert
-  ## Returns a raw pointer to the first element.
-  result = cast[pointer](unsafeAddr a[0])
+  ## Returns a typed pointer to the first element.
+  result = cast[ptr uint8](unsafeAddr a[0])
 
 suite "blake2s keyed vectors":
   test "empty input with 32-byte key":

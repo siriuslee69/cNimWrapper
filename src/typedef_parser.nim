@@ -1,7 +1,14 @@
 import name_mangle
 import name_registry
+import struct_parser
+import type_mapper
 import types
 import utils
+
+type
+  StructField* = object
+    name*: string
+    nimType*: string
 
 proc findLastIdentifier*(a: seq[Token]): string =
   ## a: token list
@@ -14,6 +21,162 @@ proc findLastIdentifier*(a: seq[Token]): string =
     if a[i].kind == tkIdentifier:
       name = a[i].text
   result = name
+
+proc findFunctionPointerAlias*(a: seq[Token]): string =
+  ## a: typedef tokens
+  ## Returns the alias name for function pointer typedefs like `(*name)`.
+  var
+    i: int = 0
+    l: int = a.len
+  while i + 2 < l:
+    if a[i].text == "(" and a[i + 1].text == "*" and a[i + 2].kind == tkIdentifier:
+      result = a[i + 2].text
+      return
+    inc i
+  result = ""
+
+proc hasTypeLine*(s: ParserState, b: string): bool =
+  ## s: parser state
+  ## b: type name
+  ## Returns true when a type declaration for the name already exists.
+  var
+    i: int = s.output.len - 1
+    needle: string = "type " & b & "*"
+  if i < 0:
+    result = false
+    return
+  while i >= 0:
+    if s.output[i].len >= needle.len and s.output[i][0 ..< needle.len] == needle:
+      result = true
+      return
+    dec i
+  result = false
+
+proc isStructTypedef*(a: seq[Token]): bool =
+  ## a: typedef tokens
+  ## Returns true when the typedef contains a struct body.
+  var
+    i: int = 0
+    l: int = a.len
+    sawStruct: bool = false
+  while i < l:
+    if a[i].text == "struct":
+      sawStruct = true
+    if a[i].text == "{" and sawStruct:
+      result = true
+      return
+    inc i
+  result = false
+
+proc collectStructBodyTokens*(a: seq[Token]): seq[Token] =
+  ## a: typedef tokens
+  ## Returns the tokens contained inside the struct body braces.
+  var
+    items: seq[Token] = @[]
+    i: int = 0
+    l: int = a.len
+    depth: int = 0
+    started: bool = false
+    sawStruct: bool = false
+  while i < l:
+    if a[i].text == "struct":
+      sawStruct = true
+    if a[i].text == "{" and sawStruct:
+      started = true
+      depth = 1
+      inc i
+      while i < l and depth > 0:
+        if a[i].text == "{":
+          inc depth
+          items.add a[i]
+        elif a[i].text == "}":
+          dec depth
+          if depth > 0:
+            items.add a[i]
+        else:
+          items.add a[i]
+        inc i
+      break
+    inc i
+  if not started:
+    result = @[]
+  else:
+    result = items
+
+proc splitStructFields*(a: seq[Token]): seq[seq[Token]] =
+  ## a: struct body tokens
+  ## Splits struct body tokens into field token groups.
+  var
+    fields: seq[seq[Token]] = @[]
+    current: seq[Token] = @[]
+    i: int = 0
+    l: int = a.len
+    parenDepth: int = 0
+    braceDepth: int = 0
+    tok: Token
+  while i < l:
+    tok = a[i]
+    if tok.text == "{":
+      inc braceDepth
+    elif tok.text == "}":
+      if braceDepth > 0:
+        dec braceDepth
+    elif tok.text == "(":
+      inc parenDepth
+    elif tok.text == ")":
+      if parenDepth > 0:
+        dec parenDepth
+    elif tok.text == ";" and braceDepth == 0 and parenDepth == 0:
+      if current.len > 0:
+        fields.add current
+        current = @[]
+      inc i
+      continue
+    current.add tok
+    inc i
+  if current.len > 0:
+    fields.add current
+  result = fields
+
+proc parseStructField*(s: var ParserState, a: seq[Token]): StructField =
+  ## s: parser state
+  ## a: field tokens
+  ## Parses a struct field into a name and Nim type, skipping function pointers.
+  var
+    fieldName: string = ""
+    funcName: string = ""
+    fieldType: string = ""
+    info: StructField
+  funcName = findFuncPtrFieldName(a)
+  if funcName.len > 0:
+    result = info
+    return
+  fieldName = fieldNameFromTokens(a)
+  if fieldName.len == 0:
+    result = info
+    return
+  fieldType = mapTokensToNimType(s, a, fieldName)
+  info.name = fieldName
+  info.nimType = fieldType
+  result = info
+
+proc collectStructFields*(s: var ParserState, a: seq[Token]): seq[StructField] =
+  ## s: parser state
+  ## a: typedef tokens
+  ## Collects struct fields for a typedef struct declaration.
+  var
+    body: seq[Token] = collectStructBodyTokens(a)
+    groups: seq[seq[Token]] = splitStructFields(body)
+    items: seq[StructField] = @[]
+    i: int = 0
+    l: int = groups.len
+    fieldInfo: StructField
+  while i < l:
+    fieldInfo = parseStructField(s, groups[i])
+    if fieldInfo.name.len > 0 and fieldInfo.nimType.len > 0:
+      items.add fieldInfo
+    inc i
+  result = items
 
 proc collectTypedefTokens*(s: var ParserState): seq[Token] =
   ## s: parser state
@@ -46,6 +209,7 @@ proc findTypedefAlias*(a: seq[Token]): string =
     l: int = a.len
     lastClose: int = -1
     name: string = ""
+    funcAlias: string = ""
   while i < l:
     if a[i].text == "}":
       lastClose = i
@@ -58,6 +222,10 @@ proc findTypedefAlias*(a: seq[Token]): string =
       inc i
     result = name
   else:
+    funcAlias = findFunctionPointerAlias(a)
+    if funcAlias.len > 0:
+      result = funcAlias
+      return
     result = findLastIdentifier(a)
 
 proc tryParseTypedef*(s: var ParserState): bool =
@@ -70,6 +238,12 @@ proc tryParseTypedef*(s: var ParserState): bool =
     aliasName: string = ""
     origName: string = ""
     namePragma: string = ""
+    fields: seq[StructField] = @[]
+    i: int = 0
+    l: int = 0
+    fieldName: string = ""
+    fieldType: string = ""
+    fieldPragma: string = ""
   discard skipNewlines(s)
   if not matchText(s, "typedef"):
     s.pos = mark
@@ -84,8 +258,28 @@ proc tryParseTypedef*(s: var ParserState): bool =
     return
   aliasName = sanitizeIdent(origName, "c_")
   aliasName = registerName(s, aliasName, origName, "typedef")
+  if hasTypeLine(s, aliasName):
+    result = true
+    return
   namePragma = formatImportcPragma(aliasName, origName)
-  emitLine(s, "type " & aliasName & "*" & namePragma & " = distinct pointer")
-  if s.config.emitComments and bodyText.len > 0:
-    emitLine(s, "# typedef: " & bodyText)
+  if isStructTypedef(bodyTokens):
+    fields = collectStructFields(s, bodyTokens)
+    emitLine(s, "type " & aliasName & "*" & namePragma & " = object")
+    l = fields.len
+    if l == 0:
+      emitLine(s, "  reserved*: array[1, byte]")
+    else:
+      while i < l:
+        fieldName = sanitizeIdent(fields[i].name, "c_")
+        fieldType = fields[i].nimType
+        fieldPragma = formatImportcPragma(fieldName, fields[i].name)
+        if fieldPragma.len > 0:
+          emitLine(s, "  " & fieldName & "*" & fieldPragma & ": " & fieldType)
+        else:
+          emitLine(s, "  " & fieldName & "*: " & fieldType)
+        inc i
+  else:
+    emitLine(s, "type " & aliasName & "*" & namePragma & " = distinct pointer")
+    if s.config.emitComments and bodyText.len > 0:
+      emitLine(s, "# typedef: " & bodyText)
   result = true
