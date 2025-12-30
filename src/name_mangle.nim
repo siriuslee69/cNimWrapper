@@ -49,18 +49,18 @@ proc stripEdgeUnderscores*(a: string): string =
     result = ""
     return
   i = 0
-  while i < l and a[i] == '_':
+  while i < l and a[i] == '_': # Skips all underscores in the beginning and sets i to the index where the actual identifier without the underscores starts.
     inc i
   if i >= l:
     result = ""
     return
   j = l - 1
-  while j >= i and a[j] == '_':
+  while j >= i and a[j] == '_':  # Skips all underscores at the end and sets j to the index where the actual identifier without the underscores ends.
     dec j
   if j < i:
-    result = ""
+    result = "" 
   else:
-    result = a[i .. j]
+    result = a[i .. j] # Return the slice of the string (only the middle part) leaving the underscores at the end and at the start out.
 
 proc sanitizeIdent*(a: string, b: string): string =
   ## a: original identifier
