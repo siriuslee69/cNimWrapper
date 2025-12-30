@@ -13,9 +13,9 @@ jobs:
         with:
           submodules: recursive
       - name: Setup Nim
-        uses: nim-lang/setup-nim-action@v2
+        uses: nim-lang/setup-nim-action@v1
         with:
           nim-version: stable
       - name: Run tests
-        working-directory: nimAutoWrapper
+        working-directory: .
         run: nimble test_all
