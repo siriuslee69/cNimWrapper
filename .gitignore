@@ -8,3 +8,4 @@ testCRepos/builds/
 nimble.develop
 nimble.paths
 nimbledeps
+_tmp_refs/
