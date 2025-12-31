@@ -1,7 +1,7 @@
 import unittest
-import src/tokenizer
+import src/level1/tokenizer
 import src/types
-import src/utils
+import src/level1/utils
 
 proc makeState*(a: string): ParserState =
   ## a: input C text

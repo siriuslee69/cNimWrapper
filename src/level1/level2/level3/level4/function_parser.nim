@@ -7,11 +7,11 @@
 # - per-parameter name/type mapping <- handled by paramInfoFromTokens(), paramTypeFromTokens()
 # It emits a Nim `proc` stub with importc pragmas <- handled by tryParseFunction().
 import strutils
-import name_mangle
-import name_registry
-import type_mapper
-import types
-import utils
+import src/name_mangle
+import src/level1/level2/name_registry
+import src/level1/level2/level3/type_mapper
+import src/types
+import src/level1/utils
 
 type ParamInfo* = object
   name*: string

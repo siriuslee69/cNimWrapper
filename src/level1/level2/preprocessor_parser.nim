@@ -6,9 +6,9 @@
 # #error ...
 # It consumes non-define and non-include directives and records them
 # for debug output <- handled by tryParsePreprocessorDirective().
-import debugger
-import types
-import utils
+import src/level1/debugger
+import src/types
+import src/level1/utils
 
 proc tryParsePreprocessorDirective*(s: var ParserState): bool =
   ## s: parser state

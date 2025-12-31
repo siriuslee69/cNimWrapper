@@ -3,9 +3,9 @@
 # and function prototypes <- handled by parseAll().
 # When no parser matches, it emits "# unparsed: ..." and records debug info
 # <- handled by parseAll().
-import debugger
-import types
-import utils
+import src/level1/debugger
+import src/types
+import src/level1/utils
 
 type ParserRegistry* = object
   parsers*: seq[ParserProc]

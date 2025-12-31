@@ -1,11 +1,11 @@
 import os
 import strutils
-import src/debugger
+import src/level1/debugger
 import src/types
-import src/tokenizer
-import src/utils
-import src/parser_core
-import src/default_parsers
+import src/level1/tokenizer
+import src/level1/utils
+import src/level1/level2/parser_core
+import src/level1/level2/level3/level4/level5/default_parsers
 
 proc defaultConfig*(): WrapperConfig =
   ## returns the default wrapper config

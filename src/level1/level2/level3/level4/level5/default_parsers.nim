@@ -2,17 +2,17 @@
 # It registers parsers for concrete C forms in this order <- handled by buildDefaultRegistry():
 # preprocessor (non-define/include), extern "C", #define, #include,
 # static const, enum, macro-wrapped struct, struct, typedef, function prototype.
-import parser_core
-import define_parser
-import enum_parser
-import extern_parser
-import function_parser
-import include_parser
-import macro_struct_parser
-import preprocessor_parser
-import static_const_parser
-import struct_parser
-import typedef_parser
+import src/level1/level2/parser_core
+import src/level1/level2/level3/define_parser
+import src/level1/level2/level3/enum_parser
+import src/level1/level2/extern_parser
+import src/level1/level2/level3/level4/function_parser
+import src/level1/level2/include_parser
+import src/level1/level2/level3/level4/macro_struct_parser
+import src/level1/level2/preprocessor_parser
+import src/level1/level2/level3/static_const_parser
+import src/level1/level2/level3/struct_parser
+import src/level1/level2/level3/level4/typedef_parser
 
 proc buildDefaultRegistry*(): ParserRegistry =
   ## returns the default parser registry

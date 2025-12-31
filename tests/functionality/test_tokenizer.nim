@@ -1,5 +1,5 @@
 import unittest
-import src/tokenizer
+import src/level1/tokenizer
 import src/types
 
 proc tokenTexts*(a: seq[Token]): seq[string] =

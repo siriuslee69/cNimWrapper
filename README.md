@@ -44,29 +44,30 @@ Module map (what each file does)
 
 Core:
 - `cNimWrapper.nim`: CLI + file I/O; writes debug JSON.
-- `src/tokenizer.nim`: turns C text into flat tokens with line/col.
-- `src/parser_core.nim`: runs parsers in order; logs unparsed tokens.
-- `src/default_parsers.nim`: parser registry order.
 - `src/types.nim`: token types, parser state, debug entry type.
-- `src/utils.nim`: token helpers and output helpers.
-- `src/type_mapper.nim`: maps C types to Nim types with pointer depth.
+- `src/name_mangle.nim`: sanitize identifiers, importc pragmas.
+- `src/level1/tokenizer.nim`: turns C text into flat tokens with line/col.
+- `src/level1/utils.nim`: token helpers and output helpers.
+- `src/level1/debugger.nim`: debug entry collection + JSON writer.
+- `src/level1/level2/parser_core.nim`: runs parsers in order; logs unparsed tokens.
+- `src/level1/level2/level3/type_mapper.nim`: maps C types to Nim types with pointer depth.
+- `src/level1/level2/level3/level4/level5/default_parsers.nim`: parser registry order.
 
 Parsers (each handles one C shape):
-- `src/preprocessor_parser.nim`: consumes non-define/include directives.
-- `src/extern_parser.nim`: consumes `extern "C" { ... }` blocks.
-- `src/define_parser.nim`: `#define` to `const` or `template`.
-- `src/static_const_parser.nim`: `static const` variables with simple init.
-- `src/enum_parser.nim`: `enum` to Nim enum.
-- `src/macro_struct_parser.nim`: `MACRO(struct ...)` wrappers.
-- `src/struct_parser.nim`: `struct` to Nim object.
-- `src/typedef_parser.nim`: `typedef` to Nim alias or object (struct typedefs).
-- `src/function_parser.nim`: function prototypes to `proc`.
+- `src/level1/level2/preprocessor_parser.nim`: consumes non-define/include directives.
+- `src/level1/level2/extern_parser.nim`: consumes `extern "C" { ... }` blocks.
+- `src/level1/level2/include_parser.nim`: `#include` to output marker.
+- `src/level1/level2/level3/define_parser.nim`: `#define` to `const` or `template`.
+- `src/level1/level2/level3/static_const_parser.nim`: `static const` variables with simple init.
+- `src/level1/level2/level3/enum_parser.nim`: `enum` to Nim enum.
+- `src/level1/level2/level3/level4/macro_struct_parser.nim`: `MACRO(struct ...)` wrappers.
+- `src/level1/level2/level3/struct_parser.nim`: `struct` to Nim object.
+- `src/level1/level2/level3/level4/typedef_parser.nim`: `typedef` to Nim alias or object (struct typedefs).
+- `src/level1/level2/level3/level4/function_parser.nim`: function prototypes to `proc`.
 
 Naming + debug helpers:
-- `src/name_mangle.nim`: sanitize identifiers, importc pragmas.
-- `src/name_registry.nim`: collision resolution + tracking.
-- `src/debugger.nim`: debug entry collection + JSON writer.
-- `src/cast_utils.nim`: strips leading C casts like `((long)0)` in init/defines.
+- `src/level1/level2/name_registry.nim`: collision resolution + tracking.
+- `src/level1/cast_utils.nim`: strips leading C casts like `((long)0)` in init/defines.
 
 -------------------------------------------------------------------------------
 Parser order (exact)
@@ -100,7 +101,7 @@ Sanitization rules (in `src/name_mangle.nim`):
 - If invalid or Nim keyword, prefix with `c_`: `type` -> `c_type`
 - Parameters use `p_` prefix or `p{index}` fallback
 
-Collision rules (in `src/name_registry.nim`):
+Collision rules (in `src/level1/level2/name_registry.nim`):
 1) Try base name (sanitized)
 2) If taken, try kind-specific suffix:
    - `struct` -> `_str` (ex: `foo_str`)

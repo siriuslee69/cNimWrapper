@@ -1,4 +1,4 @@
-import types
+import src/types
 
 proc isTypeToken*(a: Token): bool =
   ## a: token to inspect
