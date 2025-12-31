@@ -1,3 +1,10 @@
+# This module parses the following C forms:
+# static const TYPE NAME = VALUE;
+# It splits the declaration into:
+# - "static const" prefix <- handled by tryParseStaticConst()
+# - name on the left of "=" <- handled by findLastIdentBefore()
+# - value tokens on the right of "=" <- handled by findEqualsIndex()
+# It emits `const NAME* = VALUE` when the initializer is simple <- handled by tryParseStaticConst().
 import cast_utils
 import debugger
 import name_mangle

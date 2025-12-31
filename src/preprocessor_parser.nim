@@ -1,3 +1,11 @@
+# This module parses the following C forms:
+# #ifdef FOO
+# #ifndef BAR
+# #if EXPRESSION
+# #pragma ...
+# #error ...
+# It consumes non-define and non-include directives and records them
+# for debug output <- handled by tryParsePreprocessorDirective().
 import debugger
 import types
 import utils

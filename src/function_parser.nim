@@ -1,3 +1,11 @@
+# This module parses the following C forms:
+# return_type func_name(param_type param, ...);
+# It splits the prototype into:
+# - prototype shape detection without a body <- handled by looksLikeFunctionPrototype()
+# - function name before "(" <- handled by findFunctionName()
+# - parameter groups between parentheses <- handled by collectParamInfos()
+# - per-parameter name/type mapping <- handled by paramInfoFromTokens(), paramTypeFromTokens()
+# It emits a Nim `proc` stub with importc pragmas <- handled by tryParseFunction().
 import strutils
 import name_mangle
 import name_registry

@@ -1,3 +1,9 @@
+# This module parses the following C forms:
+# MACRO(struct Name { field_type field_name; });
+# It splits the wrapper into:
+# - macro prefix + "(" <- handled by isMacroStructStart(), consumeMacroPrefix()
+# - inner struct parsing <- handled by tryParseStruct()
+# - trailing ")" and optional ";" <- handled by consumeMacroSuffix()
 import types
 import utils
 import struct_parser

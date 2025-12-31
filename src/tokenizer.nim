@@ -1,3 +1,11 @@
+# This module parses the following C syntax into tokens:
+# - identifiers: foo, _bar123
+# - numbers: 42, 0x10, 3.14
+# - strings: "text"
+# - symbols and operators: "(", ")", "==", "->", "##"
+# - comments and whitespace are skipped
+# The entry point is tokenizeC, which emits a flat token stream with newlines
+# <- handled by tokenizeC().
 import types
 
 proc makeToken*(a: TokenKind, b: string, c: int, d: int): Token =

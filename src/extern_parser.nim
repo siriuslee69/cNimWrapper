@@ -1,3 +1,11 @@
+# This module parses the following C forms:
+# extern "C" { ... }
+# extern "C" ...
+# It detects the linkage string <- handled by isExternCString()
+# It tracks block entry <- handled by tryParseExternBlock()
+# It consumes the closing brace <- handled by tryParseExternClose()
+# The contents are skipped and recorded in debug output <- handled by tryParseExternBlock(),
+# tryParseExternClose().
 import strutils
 import debugger
 import types

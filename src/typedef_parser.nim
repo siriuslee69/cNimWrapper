@@ -1,3 +1,14 @@
+# This module parses the following C forms:
+# typedef ExistingType Alias;
+# typedef struct { ... } Alias;
+# typedef struct Name { ... } Alias;
+# typedef ReturnType (*FuncPtr)(...);
+# It splits the typedef into:
+# - full token collection up to ";" <- handled by collectTypedefTokens()
+# - struct body detection and field splitting <- handled by isStructTypedef(), splitStructFields()
+# - per-field type mapping <- handled by parseStructField(), mapTokensToNimType()
+# - function pointer alias detection via "(*name)" <- handled by findFunctionPointerAlias()
+# It emits Nim type aliases or objects, skipping function pointer fields <- handled by tryParseTypedef().
 import name_mangle
 import name_registry
 import struct_parser

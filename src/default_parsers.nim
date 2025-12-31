@@ -1,3 +1,7 @@
+# This module wires together the default parse order <- handled by buildDefaultRegistry().
+# It registers parsers for concrete C forms in this order <- handled by buildDefaultRegistry():
+# preprocessor (non-define/include), extern "C", #define, #include,
+# static const, enum, macro-wrapped struct, struct, typedef, function prototype.
 import parser_core
 import define_parser
 import enum_parser

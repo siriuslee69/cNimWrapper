@@ -1,3 +1,8 @@
+# This module drives parsing over the token stream.
+# It runs registered parsers for constructs like #define, enum, struct, typedef,
+# and function prototypes <- handled by parseAll().
+# When no parser matches, it emits "# unparsed: ..." and records debug info
+# <- handled by parseAll().
 import debugger
 import types
 import utils

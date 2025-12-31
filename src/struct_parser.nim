@@ -1,3 +1,11 @@
+# This module parses the following C forms:
+# struct Name { field_type field_name; ... };
+# struct { field_type field_name; };
+# It splits the struct into:
+# - "struct" keyword + optional name <- handled by tryParseStruct()
+# - fields between braces, separated by ";" <- handled by fieldNameFromTokens()
+# Function pointer fields are detected and skipped <- handled by findFuncPtrFieldName().
+# It emits a Nim `object` with placeholder field types <- handled by tryParseStruct().
 import name_mangle
 import name_registry
 import types

@@ -1,3 +1,13 @@
+# This module parses the following C forms:
+# #define NAME value
+# #define NAME(arg1, arg2) body
+# It splits the directive into:
+# - "#define" + macro name <- handled by tryParseDefine()
+# - optional parameter list in "(...)" <- handled by formatTemplateParams()
+# - macro body tokens, including "\" continuations <- handled by collectDefineBodyTokens()
+# It emits:
+# - `const NAME* = ...` for simple literals <- handled by isSimpleDefineBody(), replaceConstLine()
+# - `template NAME*(...): untyped = discard` for macro bodies <- handled by emitDefineTemplate()
 import strutils
 import cast_utils
 import name_mangle

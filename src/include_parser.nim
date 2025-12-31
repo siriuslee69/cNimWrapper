@@ -1,3 +1,8 @@
+# This module parses the following C forms:
+# #include <stdio.h>
+# #include "local.h"
+# It captures everything after "include" and emits a comment marker in the
+# output stream <- handled by tryParseInclude().
 import types
 import utils
 
