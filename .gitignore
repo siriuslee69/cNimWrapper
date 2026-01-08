@@ -6,6 +6,5 @@ testCRepos/builds/
 *.obj
 *.pdb
 nimble.develop
-nimble.paths
 nimbledeps
 _tmp_refs/
