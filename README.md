@@ -1,4 +1,4 @@
-# cNimWrapper
+# cNimWrapper-Bindr
 
 WARNING: Use at your own risk. This project is "vibe" coded.
 
@@ -262,4 +262,5 @@ Nimble tasks
 - `nimble test_all`
 - `nimble setup`
 - `nimble start`
+
 
