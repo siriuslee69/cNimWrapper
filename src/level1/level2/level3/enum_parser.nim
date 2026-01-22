@@ -20,6 +20,7 @@ proc tryParseEnum*(s: var ParserState): bool =
     namePragma: string = ""
     members: seq[string] = @[]
     currentName: string = ""
+    expectingName: bool = true
     memberName: string = ""
     memberPragma: string = ""
     tok: Token
@@ -47,12 +48,16 @@ proc tryParseEnum*(s: var ParserState): bool =
     if matchText(s, "}"):
       break
     tok = advanceToken(s)
-    if tok.kind == tkIdentifier:
-      currentName = tok.text
     if tok.text == ",":
       if currentName.len > 0:
         members.add currentName
       currentName = ""
+      expectingName = true
+      continue
+    if tok.kind == tkIdentifier:
+      if expectingName:
+        currentName = tok.text
+        expectingName = false
   if currentName.len > 0:
     members.add currentName
   discard skipNewlines(s)
