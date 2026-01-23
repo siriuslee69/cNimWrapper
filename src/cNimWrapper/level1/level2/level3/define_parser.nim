@@ -9,11 +9,11 @@
 # - `const NAME* = ...` for simple literals <- handled by isSimpleDefineBody(), replaceConstLine()
 # - `template NAME*(...): untyped = discard` for macro bodies <- handled by emitDefineTemplate()
 import strutils
-import src/level1/cast_utils
-import src/name_mangle
-import src/level1/level2/name_registry
-import src/types
-import src/level1/utils
+import src/cNimWrapper/level1/cast_utils
+import src/cNimWrapper/name_mangle
+import src/cNimWrapper/level1/level2/name_registry
+import src/cNimWrapper/types
+import src/cNimWrapper/level1/utils
 
 proc replaceConstLine*(s: var ParserState, b: string, c: string): bool =
   ## s: parser state

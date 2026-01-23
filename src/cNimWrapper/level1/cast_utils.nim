@@ -1,4 +1,4 @@
-import src/types
+import src/cNimWrapper/types
 
 proc isTypeToken*(a: Token): bool =
   ## a: token to inspect

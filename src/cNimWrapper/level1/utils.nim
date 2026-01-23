@@ -1,6 +1,6 @@
 import strutils
 import tables
-import src/types
+import src/cNimWrapper/types
 
 proc initState*(a: seq[Token], b: WrapperConfig): ParserState =
   ## a: token stream

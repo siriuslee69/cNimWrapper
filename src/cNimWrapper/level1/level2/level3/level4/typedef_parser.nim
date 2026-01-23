@@ -9,12 +9,12 @@
 # - per-field type mapping <- handled by parseStructField(), mapTokensToNimType()
 # - function pointer alias detection via "(*name)" <- handled by findFunctionPointerAlias()
 # It emits Nim type aliases or objects, skipping function pointer fields <- handled by tryParseTypedef().
-import src/name_mangle
-import src/level1/level2/name_registry
-import src/level1/level2/level3/struct_parser
-import src/level1/level2/level3/type_mapper
-import src/types
-import src/level1/utils
+import src/cNimWrapper/name_mangle
+import src/cNimWrapper/level1/level2/name_registry
+import src/cNimWrapper/level1/level2/level3/struct_parser
+import src/cNimWrapper/level1/level2/level3/type_mapper
+import src/cNimWrapper/types
+import src/cNimWrapper/level1/utils
 
 type
   StructField* = object

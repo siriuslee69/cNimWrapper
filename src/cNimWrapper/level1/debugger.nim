@@ -1,6 +1,6 @@
 import std/json
 import std/os
-import src/types
+import src/cNimWrapper/types
 
 proc recordDebug*(s: var ParserState, a: string, b: string, c: Token, d: string) =
   ## s: parser state

@@ -5,12 +5,12 @@
 # - name on the left of "=" <- handled by findLastIdentBefore()
 # - value tokens on the right of "=" <- handled by findEqualsIndex()
 # It emits `const NAME* = VALUE` when the initializer is simple <- handled by tryParseStaticConst().
-import src/level1/cast_utils
-import src/level1/debugger
-import src/name_mangle
-import src/level1/level2/name_registry
-import src/types
-import src/level1/utils
+import src/cNimWrapper/level1/cast_utils
+import src/cNimWrapper/level1/debugger
+import src/cNimWrapper/name_mangle
+import src/cNimWrapper/level1/level2/name_registry
+import src/cNimWrapper/types
+import src/cNimWrapper/level1/utils
 
 proc findEqualsIndex*(a: seq[Token]): int =
   ## a: token list

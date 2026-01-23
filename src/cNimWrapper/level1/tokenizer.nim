@@ -6,7 +6,7 @@
 # - comments and whitespace are skipped
 # The entry point is tokenizeC, which emits a flat token stream with newlines
 # <- handled by tokenizeC().
-import src/types
+import src/cNimWrapper/types
 
 proc makeToken*(a: TokenKind, b: string, c: int, d: int): Token =
   ## a: token kind

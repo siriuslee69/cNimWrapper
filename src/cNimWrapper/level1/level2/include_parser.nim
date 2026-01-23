@@ -3,8 +3,8 @@
 # #include "local.h"
 # It captures everything after "include" and emits a comment marker in the
 # output stream <- handled by tryParseInclude().
-import src/types
-import src/level1/utils
+import src/cNimWrapper/types
+import src/cNimWrapper/level1/utils
 
 proc tryParseInclude*(s: var ParserState): bool =
   ## s: parser state

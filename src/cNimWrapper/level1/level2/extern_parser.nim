@@ -7,9 +7,9 @@
 # The contents are skipped and recorded in debug output <- handled by tryParseExternBlock(),
 # tryParseExternClose().
 import strutils
-import src/level1/debugger
-import src/types
-import src/level1/utils
+import src/cNimWrapper/level1/debugger
+import src/cNimWrapper/types
+import src/cNimWrapper/level1/utils
 
 proc hasTokenText*(a: seq[Token], b: string): bool =
   ## a: token list

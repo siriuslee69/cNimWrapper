@@ -5,10 +5,10 @@
 # - "enum" keyword + optional name <- handled by tryParseEnum()
 # - members between braces, collecting identifiers only <- handled by tryParseEnum()
 # It emits a Nim enum with importc pragmas and placeholder members when empty <- handled by tryParseEnum().
-import src/name_mangle
-import src/level1/level2/name_registry
-import src/types
-import src/level1/utils
+import src/cNimWrapper/name_mangle
+import src/cNimWrapper/level1/level2/name_registry
+import src/cNimWrapper/types
+import src/cNimWrapper/level1/utils
 
 proc tryParseEnum*(s: var ParserState): bool =
   ## s: parser state

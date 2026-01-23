@@ -6,10 +6,10 @@
 # - fields between braces, separated by ";" <- handled by fieldNameFromTokens()
 # Function pointer fields are detected and skipped <- handled by findFuncPtrFieldName().
 # It emits a Nim `object` with placeholder field types <- handled by tryParseStruct().
-import src/name_mangle
-import src/level1/level2/name_registry
-import src/types
-import src/level1/utils
+import src/cNimWrapper/name_mangle
+import src/cNimWrapper/level1/level2/name_registry
+import src/cNimWrapper/types
+import src/cNimWrapper/level1/utils
 
 proc findFuncPtrFieldName*(a: seq[Token]): string =
   ## a: field declaration tokens

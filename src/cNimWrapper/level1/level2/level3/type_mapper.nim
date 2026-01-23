@@ -1,7 +1,7 @@
 import strutils
-import src/name_mangle
-import src/level1/level2/name_registry
-import src/types
+import src/cNimWrapper/name_mangle
+import src/cNimWrapper/level1/level2/name_registry
+import src/cNimWrapper/types
 
 proc pointerCountFromTokens*(a: seq[Token]): int =
   ## a: token list

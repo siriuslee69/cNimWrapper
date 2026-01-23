@@ -4,9 +4,9 @@
 # - macro prefix + "(" <- handled by isMacroStructStart(), consumeMacroPrefix()
 # - inner struct parsing <- handled by tryParseStruct()
 # - trailing ")" and optional ";" <- handled by consumeMacroSuffix()
-import src/types
-import src/level1/utils
-import src/level1/level2/level3/struct_parser
+import src/cNimWrapper/types
+import src/cNimWrapper/level1/utils
+import src/cNimWrapper/level1/level2/level3/struct_parser
 
 proc isMacroStructStart*(s: ParserState): bool =
   ## s: parser state

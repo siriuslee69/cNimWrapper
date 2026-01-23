@@ -1,7 +1,7 @@
 import strutils
 import tables
-import src/level1/debugger
-import src/types
+import src/cNimWrapper/level1/debugger
+import src/cNimWrapper/types
 
 proc altNameForKind*(a: string, b: string): string =
   ## a: base Nim name
