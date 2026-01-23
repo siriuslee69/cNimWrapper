@@ -1,11 +1,11 @@
 import os
 import strutils
-import src/level1/debugger
-import src/types
-import src/level1/tokenizer
-import src/level1/utils
-import src/level1/level2/parser_core
-import src/level1/level2/level3/level4/level5/default_parsers
+import src/cNimWrapper/level1/debugger
+import src/cNimWrapper/types
+import src/cNimWrapper/level1/tokenizer
+import src/cNimWrapper/level1/utils
+import src/cNimWrapper/level1/level2/parser_core
+import src/cNimWrapper/level1/level2/level3/level4/level5/default_parsers
 
 proc defaultConfig*(): WrapperConfig =
   ## returns the default wrapper config
