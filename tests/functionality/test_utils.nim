@@ -1,7 +1,7 @@
 import unittest
-import src/level1/tokenizer
-import src/types
-import src/level1/utils
+import src/cNimWrapper/level1/tokenizer
+import src/cNimWrapper/types
+import src/cNimWrapper/level1/utils
 
 proc makeState*(a: string): ParserState =
   ## a: input C text
@@ -40,3 +40,4 @@ suite "utils basics":
       name: string = lastIdentifier(items)
     check ok
     check name == "foo"
+

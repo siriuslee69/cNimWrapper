@@ -4,6 +4,7 @@ version       = "0.1.0"
 author        = "n1ght"
 description   = "Modular C header wrapper generator for Nim."
 license       = "UNLICENSED"
+srcDir        = "src"
 
 task build_aes, "Generate wrapper for tiny-AES-c":
   exec "nim r tools/ensure_env.nim -- --submodules --builddirs"
@@ -150,4 +151,20 @@ task find, "Use local clones for submodules in parent folder":
             exec "git config -f .gitmodules submodule." & current & ".url " & localUrl
             exec "git config submodule." & current & ".url " & localUrl
     exec "git submodule sync --recursive"
+
+
+requires "nim >= 1.6.0", "owlkettle >= 3.0.0", "illwill >= 0.4.0"
+
+task buildDesktop, "Build the GTK4 desktop app":
+  exec "nim c -d:release src/cNimWrapper/frontend/desktop/app.nim"
+
+task runDesktop, "Run the GTK4 desktop app":
+  exec "nim c -r src/cNimWrapper/frontend/desktop/app.nim"
+
+task runCli, "Run the CLI entrypoint":
+  exec "nim c -r src/cNimWrapper/frontend/cli/app_cli.nim"
+
+task runTui, "Run the TUI entrypoint":
+  exec "nim c -r src/cNimWrapper/frontend/tui/app_tui.nim"
+
 

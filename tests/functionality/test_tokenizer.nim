@@ -1,6 +1,6 @@
 import unittest
-import src/level1/tokenizer
-import src/types
+import src/cNimWrapper/level1/tokenizer
+import src/cNimWrapper/types
 
 proc tokenTexts*(a: seq[Token]): seq[string] =
   ## a: token list
@@ -37,3 +37,4 @@ suite "tokenizeC basics":
       kinds.add tokens[i].kind
       inc i
     check kinds.contains(tkString)
+
